@@ -48,25 +48,24 @@ fn write_130_wide(f: &mut fmt::Formatter<'_>, limbs: [u64; 5]) -> fmt::Result {
 }
 
 /// Derives the Poly1305 addition and polynomial keys.
-pub(super) fn prepare_keys(key: &Key) -> (AdditionKey, PrecomputedMultiplier) {
-    unsafe {
-        // [k7, k6, k5, k4, k3, k2, k1, k0]
-        let key = _mm256_loadu_si256(key.as_ptr() as *const _);
+#[target_feature(enable = "avx2")]
+pub(super) unsafe fn prepare_keys(key: &Key) -> (AdditionKey, PrecomputedMultiplier) {
+    // [k7, k6, k5, k4, k3, k2, k1, k0]
+    let key = _mm256_loadu_si256(key.as_ptr() as *const _);
 
-        // Prepare addition key: [0, k7, 0, k6, 0, k5, 0, k4]
-        let k = AdditionKey(_mm256_and_si256(
-            _mm256_permutevar8x32_epi32(key, _mm256_set_epi32(3, 7, 2, 6, 1, 5, 0, 4)),
-            _mm256_set_epi32(0, -1, 0, -1, 0, -1, 0, -1),
-        ));
+    // Prepare addition key: [0, k7, 0, k6, 0, k5, 0, k4]
+    let k = AdditionKey(_mm256_and_si256(
+        _mm256_permutevar8x32_epi32(key, _mm256_set_epi32(3, 7, 2, 6, 1, 5, 0, 4)),
+        _mm256_set_epi32(0, -1, 0, -1, 0, -1, 0, -1),
+    ));
 
-        // Prepare polynomial key R = k & 0xffffffc0ffffffc0ffffffc0fffffff:
-        let r = Aligned130::new(_mm256_and_si256(
-            key,
-            _mm256_set_epi32(0, 0, 0, 0, 0x0ffffffc, 0x0ffffffc, 0x0ffffffc, 0x0fffffff),
-        ));
+    // Prepare polynomial key R = k & 0xffffffc0ffffffc0ffffffc0fffffff:
+    let r = Aligned130::new(_mm256_and_si256(
+        key,
+        _mm256_set_epi32(0, 0, 0, 0, 0x0ffffffc, 0x0ffffffc, 0x0ffffffc, 0x0fffffff),
+    ));
 
-        (k, r.into())
-    }
+    (k, r.into())
 }
 
 /// A 130-bit integer aligned across five 26-bit limbs.

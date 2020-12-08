@@ -10,13 +10,17 @@ pub fn fuzz_avx2(key: &Key, data: &[u8]) {
     for (_i, chunk) in data.chunks(BLOCK_SIZE).enumerate() {
         if chunk.len() == BLOCK_SIZE {
             let block = GenericArray::from_slice(chunk);
-            avx2.compute_block(block, false);
+            unsafe {
+                avx2.compute_block(block, false);
+            }
             soft.compute_block(block, false);
         } else {
             let mut block = Block::default();
             block[..chunk.len()].copy_from_slice(chunk);
             block[chunk.len()] = 1;
-            avx2.compute_block(&block, true);
+            unsafe {
+                avx2.compute_block(&block, true);
+            }
             soft.compute_block(&block, true);
         }
 

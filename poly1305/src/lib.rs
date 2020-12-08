@@ -80,6 +80,7 @@ mod backend;
 
 #[cfg(all(
     any(target_arch = "x86", target_arch = "x86_64"),
+    target_feature = "avx2",
     not(feature = "force-soft"),
     any(fuzzing, test)
 ))]
@@ -176,6 +177,7 @@ impl Poly1305 {
 
 #[cfg(all(
     any(target_arch = "x86", target_arch = "x86_64"),
+    target_feature = "avx2",
     not(feature = "force-soft"),
     any(fuzzing, test)
 ))]
