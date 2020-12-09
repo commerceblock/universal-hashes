@@ -455,6 +455,11 @@ impl Unreduced130 {
 
             // Carry chain
             let adc = |v1: __m256i, v0: __m256i| -> (__m256i, __m256i) {
+                //
+                // HEISENBUG! Uncomment this line to make the tests pass!
+                //
+                //dbg!(&v1, &v0);
+
                 //   [t_3,       t_2 % 2^26, t_1 % 2^26, t_0 % 2^26]
                 // + [t_2 >> 26, t_1 >>  26, t_0 >>  26,  0        ]
                 // = [
@@ -470,6 +475,11 @@ impl Unreduced130 {
                         set02(2, 1, 0, 3),
                     ),
                 );
+
+                // BUG!
+                // This is the location closest to where miscompiled output is observed
+                dbg!(&v1, &v0);
+
                 //   [_, _, _, t_4]
                 // + [
                 //     (t_2 % 2^26 + t_1 >> 26) >> 26,

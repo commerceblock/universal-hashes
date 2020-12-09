@@ -102,6 +102,10 @@ impl State {
     }
 
     /// Finalize output producing a [`Tag`]
+    //
+    // BUG!
+    // Comment out `#[target_feature(...)]` to make the tests pass
+    //
     #[target_feature(enable = "avx2")]
     pub(crate) unsafe fn finalize(&mut self) -> Tag {
         assert!(self.num_cached_blocks < 4);
@@ -131,7 +135,11 @@ impl State {
             if let Some(p) = p {
                 c = c + p;
             }
-            p = Some((c * self.r1).reduce());
+            let tmp = c * self.r1;
+            //dbg!(&tmp);
+            // NOTE: this is the call site where miscompilation is happening
+            p = Some(tmp.reduce());
+            //dbg!(&p);
             self.num_cached_blocks -= 1;
         }
 
@@ -144,8 +152,6 @@ impl State {
             p = Some((c * self.r1).reduce());
         }
 
-        dbg!(&self);
-
         // Compute tag: p + k mod 2^128
         let mut tag = GenericArray::<u8, _>::default();
         let tag_int = if let Some(p) = p {
@@ -153,6 +159,7 @@ impl State {
         } else {
             self.k.into()
         };
+
         tag_int.write(tag.as_mut_slice());
 
         Tag::new(tag)
