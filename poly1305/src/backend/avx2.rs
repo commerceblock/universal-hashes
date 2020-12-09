@@ -23,14 +23,14 @@ use crate::{Block, Key, Tag};
 mod helpers;
 use self::helpers::*;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 struct Initialized {
     p: Aligned4x130,
     m: SpacedMultiplier4x130,
     r4: PrecomputedMultiplier,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub(crate) struct State {
     k: AdditionKey,
     r1: PrecomputedMultiplier,
@@ -143,6 +143,8 @@ impl State {
             }
             p = Some((c * self.r1).reduce());
         }
+
+        dbg!(&self);
 
         // Compute tag: p + k mod 2^128
         let mut tag = GenericArray::<u8, _>::default();
