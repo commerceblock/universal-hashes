@@ -102,7 +102,8 @@ impl State {
     }
 
     /// Finalize output producing a [`Tag`]
-    pub(crate) fn finalize(&mut self) -> Tag {
+    #[target_feature(enable = "avx2")]
+    pub(crate) unsafe fn finalize(&mut self) -> Tag {
         assert!(self.num_cached_blocks < 4);
         let mut data = &self.cached_blocks[..];
 

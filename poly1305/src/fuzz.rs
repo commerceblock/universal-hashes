@@ -29,12 +29,15 @@ pub fn fuzz_avx2(key: &Key, data: &[u8]) {
         // When fuzzing, we skip this check, and just look at the end.
         #[cfg(test)]
         assert_eq!(
-            (_i + 1, avx2.clone().finalize().into_bytes()),
+            (_i + 1, unsafe { avx2.clone().finalize().into_bytes() }),
             (_i + 1, soft.clone().finalize().into_bytes()),
         );
     }
 
-    assert_eq!(avx2.finalize().into_bytes(), soft.finalize().into_bytes());
+    assert_eq!(
+        unsafe { avx2.finalize().into_bytes() },
+        soft.finalize().into_bytes()
+    );
 }
 
 fn avx2_fuzzer_test_case(data: &[u8]) {
