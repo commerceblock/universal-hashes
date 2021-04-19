@@ -16,7 +16,7 @@ edition = "2018"
 
 [dependencies]
 opaque-debug = "0.3"
-universal-hash = { version = "0.4", default-features = false }
+universal-hash = { git = "https://github.com/mesalock-linux/rustcrypto-traits-sgx.git" }
 zeroize = { version = "1.2", optional = true, default-features = false }
 
 [target.'cfg(any(target_arch = "x86_64", target_arch = "x86"))'.dependencies]
